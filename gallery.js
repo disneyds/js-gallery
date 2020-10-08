@@ -34,6 +34,8 @@ function onOpenModal(e) {
   e.preventDefault();
   window.addEventListener('keydown', closeModalFromESC);
   window.addEventListener('keydown', swapImages);
+  btnCloseModal.addEventListener('click', onModalClose);
+  overlay.addEventListener('click', closeModalFromOverlay);
 
   const source = e.target.dataset.source;
   const alt = e.target.getAttribute('alt');
@@ -43,12 +45,11 @@ function onOpenModal(e) {
   imageInModal.setAttribute('alt', alt);
 }
 
-btnCloseModal.addEventListener('click', onModalClose);
-overlay.addEventListener('click', closeModalFromOverlay);
-
 function onModalClose() {
   window.removeEventListener('keydown', closeModalFromESC);
   window.removeEventListener('keydown', swapImages);
+  btnCloseModal.removeEventListener('click', onModalClose);
+  overlay.removeEventListener('click', closeModalFromOverlay);
   modal.classList.remove('is-open');
   imageInModal.removeAttribute('src');
   imageInModal.removeAttribute('alt');
@@ -64,13 +65,27 @@ function closeModalFromESC(e) {
   }
 }
 
+let ArrOfSources = [];
+images.forEach(item => {
+  ArrOfSources.push(item.original);
+});
+
 function swapImages(e) {
-  if (e.code === 'ArrowLeft') {
-    imageInModal.setAttribute('src', images[0].original);
-    imageInModal.setAttribute('alt', images[0].description);
-  }
+  let index = ArrOfSources.indexOf(imageInModal.src);
+
   if (e.code === 'ArrowRight') {
-    imageInModal.setAttribute('src', images[0].original);
-    imageInModal.setAttribute('alt', images[0].description);
+    if (index < ArrOfSources.length - 1) {
+      imageInModal.setAttribute('src', ArrOfSources[index + 1]);
+    } else {
+      index = -1;
+      imageInModal.setAttribute('src', ArrOfSources[index + 1]);
+    }
+  }
+
+  if (e.code === 'ArrowLeft') {
+    if (index === 0) {
+      index = ArrOfSources.length;
+      imageInModal.setAttribute('src', ArrOfSources[index - 1]);
+    } else imageInModal.setAttribute('src', ArrOfSources[index - 1]);
   }
 }
